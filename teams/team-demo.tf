@@ -106,9 +106,21 @@ resource "azurerm_role_assignment" "team_demo_app_acr_pull" {
 # Reader on rg-platform-shared so the team's Terraform can resolve shared
 # resources via data sources (CAE, Log Analytics, etc.). Read-only —
 # team cannot create, update, or delete anything in the platform RG.
+# Reader on rg-platform-shared: allows data source lookups (CAE, Log Analytics).
 resource "azurerm_role_assignment" "team_demo_platform_reader" {
   scope                = data.azurerm_resource_group.platform_shared.id
   role_definition_name = "Reader"
+  principal_id         = azuread_service_principal.team_demo_ci.object_id
+}
+
+# Contributor scoped to the CAE resource only.
+# When a Container App (in rg-team-demo) joins an environment in a different RG,
+# Azure checks Microsoft.App/managedEnvironments/join/action on that environment.
+# No built-in role provides only join/action — Contributor on the resource
+# (not the RG) is the narrowest assignment that includes it.
+resource "azurerm_role_assignment" "team_demo_cae_join" {
+  scope                = data.azurerm_container_app_environment.shared.id
+  role_definition_name = "Contributor"
   principal_id         = azuread_service_principal.team_demo_ci.object_id
 }
 

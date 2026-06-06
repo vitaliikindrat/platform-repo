@@ -42,3 +42,8 @@ data "azurerm_storage_account" "tfstate" {
 data "azurerm_resource_group" "platform_shared" {
   name = "rg-platform-shared"
 }
+
+data "azurerm_container_app_environment" "shared" {
+  name                = "cae-platform-shared"
+  resource_group_name = "rg-platform-shared"
+}
