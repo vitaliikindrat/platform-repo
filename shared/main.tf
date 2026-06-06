@@ -10,6 +10,7 @@ terraform {
     resource_group_name = "rg-oidc-demo"
     container_name      = "tfstate"
     key                 = "platform-shared.tfstate"
+    use_azuread_auth    = true
   }
 }
 

@@ -14,6 +14,7 @@ terraform {
     resource_group_name = "rg-oidc-demo"
     container_name      = "tfstate"
     key                 = "platform-teams.tfstate"
+    use_azuread_auth    = true
   }
 }
 
