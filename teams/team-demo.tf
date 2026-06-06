@@ -69,9 +69,19 @@ resource "azurerm_role_assignment" "team_demo_acr_push" {
 # Storage Blob Data Contributor scoped to the tfstate account only.
 # Team can read/write their own state key (team-demo-infra.tfstate).
 # They cannot list other keys or manage the storage account itself.
-resource "azurerm_role_assignment" "team_demo_tfstate" {
+# Data plane: read/write blobs (the actual state file content)
+resource "azurerm_role_assignment" "team_demo_tfstate_data" {
   scope                = data.azurerm_storage_account.tfstate.id
   role_definition_name = "Storage Blob Data Contributor"
+  principal_id         = azuread_service_principal.team_demo_ci.object_id
+}
+
+# ARM plane: read storage account metadata so the backend can resolve
+# the blob endpoint. Storage Blob Data Contributor is data-plane only
+# and doesn't include Microsoft.Storage/storageAccounts/read.
+resource "azurerm_role_assignment" "team_demo_tfstate_reader" {
+  scope                = data.azurerm_storage_account.tfstate.id
+  role_definition_name = "Reader"
   principal_id         = azuread_service_principal.team_demo_ci.object_id
 }
 
