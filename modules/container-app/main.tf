@@ -32,7 +32,7 @@ resource "azurerm_container_app" "this" {
 
     container {
       name   = var.name
-      image  = "${var.acr_login_server}/${var.name}:${var.image_tag}"
+      image  = var.initial_image
       cpu    = var.cpu
       memory = var.memory
 

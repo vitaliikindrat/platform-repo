@@ -29,6 +29,12 @@ variable "image_tag" {
   description = "Image tag. The deploy workflow overwrites this — Terraform ignores it after first apply."
 }
 
+variable "initial_image" {
+  type        = string
+  default     = "mcr.microsoft.com/azuredocs/containerapps-helloworld:latest"
+  description = "Public placeholder image used on first apply before the deploy workflow has pushed a real image to ACR."
+}
+
 variable "cpu" {
   type    = number
   default = 0.25
