@@ -1,0 +1,48 @@
+name: Onboard Team
+
+on:
+  workflow_dispatch:
+
+# No inputs — teams/ directory is the source of truth.
+# To onboard a new team: add team-x.tf to teams/, merge to main, run this workflow.
+# To offboard: remove the file, merge, run this workflow (terraform destroy the resources).
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    environment: prod
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Azure login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.14.3"
+
+      - name: Init
+        working-directory: teams/
+        run: terraform init -backend-config="storage_account_name=${{ secrets.TFSTATE_STORAGE_ACCOUNT }}"
+        env:
+          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      # Output the values the team needs for their GitHub environment secrets.
+      # Platform engineer copies these to the team's repo after the workflow succeeds.
+      - name: Apply and print team outputs
+        working-directory: teams/
+        run: |
+          terraform apply -auto-approve
+          echo "──── Team onboarding outputs ────"
+          terraform output
+        env:
+          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
