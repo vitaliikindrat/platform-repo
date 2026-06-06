@@ -38,3 +38,7 @@ data "azurerm_storage_account" "tfstate" {
   name                = "sttfstatebfea0dc0"
   resource_group_name = "rg-oidc-demo"
 }
+
+data "azurerm_resource_group" "platform_shared" {
+  name = "rg-platform-shared"
+}

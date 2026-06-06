@@ -103,6 +103,15 @@ resource "azurerm_role_assignment" "team_demo_app_acr_pull" {
 
 # Outputs — these values go into team-demo's GitHub environment secrets.
 # After onboard workflow runs, platform copies these to the team's repo.
+# Reader on rg-platform-shared so the team's Terraform can resolve shared
+# resources via data sources (CAE, Log Analytics, etc.). Read-only —
+# team cannot create, update, or delete anything in the platform RG.
+resource "azurerm_role_assignment" "team_demo_platform_reader" {
+  scope                = data.azurerm_resource_group.platform_shared.id
+  role_definition_name = "Reader"
+  principal_id         = azuread_service_principal.team_demo_ci.object_id
+}
+
 output "team_demo_client_id" {
   description = "→ GitHub secret AZURE_CLIENT_ID in team-demo prod environment"
   value       = azuread_application.team_demo_ci.client_id
